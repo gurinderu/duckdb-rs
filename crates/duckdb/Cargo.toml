@@ -17,7 +17,9 @@ rust-version = { workspace = true }
 name = "duckdb"
 
 [features]
-default = []
+# Forwards libduckdb-sys defaults (vcpkg, pkg-config, download-lib) so that
+# `default-features = false` on this crate also drops them from the sys crate.
+default = ["libduckdb-sys/default"]
 bundled = ["libduckdb-sys/bundled"]
 # Warning: experimental feature
 bundled-cmake = ["bundled", "libduckdb-sys/bundled-cmake", "parquet"]

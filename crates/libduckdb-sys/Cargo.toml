@@ -21,7 +21,7 @@ edition = { workspace = true }
 rust-version = { workspace = true }
 
 [features]
-default = ["vcpkg", "pkg-config"]
+default = ["vcpkg", "pkg-config", "download-lib"]
 bundled = ["cc"]
 # Warning: experimental feature
 bundled-cmake = ["bundled", "dep:cmake", "dep:which", "parquet"]
@@ -35,7 +35,8 @@ tpch = ["bundled-cmake"]
 extensions-full = ["json", "parquet"]
 winduckdb = []
 # Download a pre-built libduckdb when DUCKDB_DOWNLOAD_LIB=1 (pulls in an HTTP client
-# and zip support at build time). Not needed with `bundled`.
+# and zip support at build time). Not needed with `bundled`; opt out with
+# `default-features = false`.
 download-lib = ["dep:ureq", "dep:zip"]
 # Warning: experimental feature
 loadable-extension = ["prettyplease", "quote", "syn"]

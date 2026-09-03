@@ -74,7 +74,7 @@ cargo build --example hello-ext --features loadable-extension
 
 The user-facing build options (`bundled`, linking against a system library, `DUCKDB_DOWNLOAD_LIB`, cross-compiling) are documented under [Troubleshoot](https://duckdb.org/docs/stable/clients/rust/troubleshoot) in the guide. The options below apply only when building from a checkout of this repository.
 
-`DUCKDB_DOWNLOAD_LIB=1` additionally requires the `download-lib` feature, which pulls an HTTP client (`ureq`/`rustls`) into the build script. It is off by default so that `bundled` builds carry no network dependencies.
+`DUCKDB_DOWNLOAD_LIB=1` additionally requires the `download-lib` feature, which pulls an HTTP client (`ureq`/`rustls`) into the build script. It is on by default; consumers building with `bundled` can drop it (and the HTTP client) with `default-features = false`.
 
 ### `bundled-cmake`
 

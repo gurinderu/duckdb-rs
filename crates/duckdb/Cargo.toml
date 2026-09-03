@@ -41,7 +41,7 @@ appender-arrow = ["vtab-arrow"]
 vtab-full = ["vtab-excel", "vtab-arrow", "appender-arrow"]
 extensions-full = ["json", "parquet", "vtab-full"]
 buildtime_bindgen = ["libduckdb-sys/buildtime_bindgen"]
-# Allow DUCKDB_DOWNLOAD_LIB=1 to fetch a pre-built libduckdb at build time.
+# Fetch a pre-built libduckdb at build time (non-bundled builds).
 download-lib = ["libduckdb-sys/download-lib"]
 modern-full = ["chrono", "serde_json", "url", "r2d2", "uuid", "polars", "rust_decimal"]
 polars = ["dep:polars", "dep:polars-core"]

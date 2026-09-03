@@ -34,8 +34,8 @@ tpcds = ["bundled-cmake"]
 tpch = ["bundled-cmake"]
 extensions-full = ["json", "parquet"]
 winduckdb = []
-# Download a pre-built libduckdb when DUCKDB_DOWNLOAD_LIB=1 (pulls in an HTTP client
-# and zip support at build time). Not needed with `bundled`; opt out with
+# Download a pre-built libduckdb (unless `bundled` or DUCKDB_LIB_DIR is used).
+# Pulls an HTTP client and zip support into the build script; opt out with
 # `default-features = false`.
 download-lib = ["dep:ureq", "dep:zip"]
 # Warning: experimental feature

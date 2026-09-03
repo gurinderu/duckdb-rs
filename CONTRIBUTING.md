@@ -213,7 +213,7 @@ locally, or rely on the nightly workflow and CI to cover the bundled backends.
 The nightly workflow also downloads the matching upstream nightly libraries
 for Linux, macOS, and Windows, generates bindings from their headers, and tests
 those bindings against them.
-Release-based CI jobs (`DUCKDB_DOWNLOAD_LIB`, the Windows release zip) stay red
+Release-based CI jobs (the `download-lib` download, the Windows release zip) stay red
 until DuckDB publishes the release binaries. If the planned release command
 above already bumped versions and download URLs, finalize the bundled sources
 and bindings from the tag with `./crates/libduckdb-sys/upgrade.sh v1.5.4`.

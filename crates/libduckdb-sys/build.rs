@@ -143,7 +143,7 @@ impl HeaderLocation {
 
 #[cfg(not(feature = "bundled"))]
 mod build_linked {
-    #[cfg(feature = "vcpkg")]
+    #[cfg(all(feature = "vcpkg", not(feature = "download-lib")))]
     extern crate vcpkg;
 
     #[cfg(feature = "buildtime_bindgen")]
@@ -201,7 +201,6 @@ mod build_linked {
 
     // Prints the necessary cargo link commands and returns the path to the header.
     fn find_duckdb(out_dir: &str) -> HeaderLocation {
-        println!("cargo:rerun-if-env-changed=DUCKDB_DOWNLOAD_LIB");
         if !is_loadable_extension() {
             println!("cargo:rerun-if-env-changed=DUCKDB_INCLUDE_DIR");
             println!("cargo:rerun-if-env-changed=DUCKDB_LIB_DIR");
@@ -244,17 +243,18 @@ mod build_linked {
             return HeaderLocation::from_env(Path::new(&dir));
         }
 
-        if should_download_libduckdb() {
-            #[cfg(feature = "download-lib")]
-            return download_libduckdb(out_dir).unwrap_or_else(|err| panic!("Failed to set up libduckdb: {err}"));
-            #[cfg(not(feature = "download-lib"))]
-            panic!(
-                "DUCKDB_DOWNLOAD_LIB is set, but libduckdb-sys was built without the `download-lib` feature. \
-                 Enable it (`--features download-lib`) to download a pre-built libduckdb, \
-                 or set DUCKDB_LIB_DIR / use the `bundled` feature instead."
-            );
+        // With `download-lib`, fetch the pre-built library for this target
+        // instead of probing the system.
+        #[cfg(feature = "download-lib")]
+        {
+            download_libduckdb(out_dir).unwrap_or_else(|err| panic!("Failed to set up libduckdb: {err}"))
         }
+        #[cfg(not(feature = "download-lib"))]
+        probe_system_libduckdb()
+    }
 
+    #[cfg(not(feature = "download-lib"))]
+    fn probe_system_libduckdb() -> HeaderLocation {
         if let Some(header) = try_vcpkg() {
             return header;
         }
@@ -289,6 +289,7 @@ mod build_linked {
         }
     }
 
+    #[cfg(not(feature = "download-lib"))]
     fn try_vcpkg() -> Option<HeaderLocation> {
         #[cfg(feature = "vcpkg")]
         if is_compiler("msvc") {
@@ -300,12 +301,6 @@ mod build_linked {
             }
         }
         None
-    }
-
-    fn should_download_libduckdb() -> bool {
-        env::var("DUCKDB_DOWNLOAD_LIB")
-            .map(|value| matches!(value.to_ascii_lowercase().as_str(), "1" | "true"))
-            .unwrap_or(false)
     }
 
     #[cfg(feature = "download-lib")]

@@ -74,6 +74,8 @@ cargo build --example hello-ext --features loadable-extension
 
 The user-facing build options (`bundled`, linking against a system library, `DUCKDB_DOWNLOAD_LIB`, cross-compiling) are documented under [Troubleshoot](https://duckdb.org/docs/stable/clients/rust/troubleshoot) in the guide. The options below apply only when building from a checkout of this repository.
 
+`DUCKDB_DOWNLOAD_LIB=1` additionally requires the `download-lib` feature, which pulls an HTTP client (`ureq`/`rustls`) into the build script. It is off by default so that `bundled` builds carry no network dependencies.
+
 ### `bundled-cmake`
 
 The `bundled-cmake` feature builds DuckDB from `crates/libduckdb-sys/duckdb-sources` using DuckDB's upstream CMake build instead of the `cc` backend. It is required for CMake-only extensions such as `icu`, and is not available from crates.io because published crates omit the full source tree.

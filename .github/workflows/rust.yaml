@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   test:
-    # - Linux uses DUCKDB_DOWNLOAD_LIB (non-bundled)
+    # - Linux uses DUCKDB_DOWNLOAD_LIB (non-bundled, needs the `download-lib` feature)
     # - Windows uses pre-downloaded archives via DUCKDB_LIB_DIR
     # - bundled feature covered by the Ubuntu clippy feature set below
     name: Test ${{ matrix.name }}
@@ -80,11 +80,18 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         env:
           RUSTDOCFLAGS: -D warnings
+          # rustdoc never links libduckdb; skip the download so the default
+          # feature set (no `download-lib`) builds cleanly.
+          DUCKDB_DOWNLOAD_LIB: "0"
         # Keep this feature list in sync with crates/duckdb/Cargo.toml [package.metadata.docs.rs].
         run: cargo doc --workspace --no-deps --features "modern-full vscalar vscalar-arrow vtab-full"
 
       - name: Dry-run release of crates
         if: matrix.os == 'ubuntu-latest'
+        env:
+          # Verification builds rlibs only (no link step) with default features,
+          # which no longer include `download-lib`.
+          DUCKDB_DOWNLOAD_LIB: "0"
         run: cargo publish --workspace --dry-run
 
       # For windows
@@ -111,7 +118,7 @@ jobs:
 
       - name: Build loadable extension
         if: matrix.os == 'ubuntu-latest'
-        run: cargo build --example hello-ext --features="loadable-extension"
+        run: cargo build --example hello-ext --features="loadable-extension download-lib"
 
       - name: Build loadable extension (windows)
         if: matrix.os == 'windows-latest'
@@ -204,7 +211,7 @@ jobs:
         env:
           # PRs use a downloaded libduckdb for speed (no bundled C++ ASAN coverage).
           # Pushes to main keep extensions-full/bundled to preserve deeper coverage.
-          ASAN_FEATURES: ${{ github.ref == 'refs/heads/main' && 'serde_json url r2d2 uuid polars vscalar vscalar-arrow extensions-full' || 'serde_json url r2d2 uuid polars vscalar vscalar-arrow' }}
+          ASAN_FEATURES: ${{ github.ref == 'refs/heads/main' && 'serde_json url r2d2 uuid polars vscalar vscalar-arrow extensions-full' || 'download-lib serde_json url r2d2 uuid polars vscalar vscalar-arrow' }}
           DUCKDB_DOWNLOAD_LIB: ${{ github.ref == 'refs/heads/main' && '0' || '1' }}
           RUSTFLAGS: -Zsanitizer=address -C debuginfo=0
           RUSTDOCFLAGS: -Zsanitizer=address
